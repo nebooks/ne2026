@@ -281,7 +281,7 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px}
     <button class="sample-close" onclick="closeSample()">✕</button>
     <div id="sampleForm">
       <div class="sample-title">📦 샘플 교재 신청</div>
-      <div class="sample-desc">📚 교재당 최대 3부 · 최대 3종 신청 가능<br>✅ 신청 후 영업담당자 확인 후 순차 발송 · 🚚 영업일 기준 3~5일 소요</div>
+      <div class="sample-desc">📚 교재당 최대 3부 · 최대 3종 신청 가능<br>✅ 신청 후 영업담당자 확인 후 순차 발송<br>🚚 배송까지 영업일 기준 3~5일 소요될 수 있습니다</div>
 
       <!-- 학원명 -->
       <div class="form-group" style="position:relative">
@@ -2177,7 +2177,11 @@ function getBookList(){
   const list = [];
   SERIES.forEach(s => {
     s.products.forEach(p => {
-      list.push(s.title + " " + p.name);
+      // 제품명이 이미 시리즈명을 포함하면 제품명만, 아니면 시리즈명 + 제품명
+      const pName = p.name.toLowerCase();
+      const sTitle = s.title.toLowerCase().replace(" 시리즈","");
+      const fullName = pName.startsWith(sTitle) ? p.name : s.title.replace(" 시리즈","") + " " + p.name;
+      list.push(fullName);
     });
   });
   return list;
@@ -2187,7 +2191,7 @@ function searchBook(input, idx){
   const wrap = input.closest(".book-row");
   const ac = wrap.querySelector(".book-autocomplete");
   if(!q){ ac.style.display="none"; return; }
-  const results = getBookList().filter(b => b.toLowerCase().includes(q)).slice(0,8);
+  const results = getBookList().filter(b => b.toLowerCase().includes(q)).slice(0,12);
   if(!results.length){ ac.style.display="none"; return; }
   ac.innerHTML = results.map(b =>
     `<div class="book-autocomplete-item" onclick="selectBook(this,'${b.replace(/'/g,"\\'")}')">${b}</div>`
