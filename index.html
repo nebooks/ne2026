@@ -355,7 +355,18 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px}
 </div>
 
 <!-- 카카오 지도 API -->
-<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b7acae2da7c908bbacdf11a8c716e00e&libraries=services"></script>
+<script>
+function loadKakaoSDK(){
+  return new Promise((resolve, reject) => {
+    if(window.kakao && window.kakao.maps){ resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=b7acae2da7c908bbacdf11a8c716e00e&libraries=services&autoload=false";
+    script.onload = () => { kakao.maps.load(resolve); };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+</script>
 
 <script>
 /* ======================================================================
@@ -2123,6 +2134,7 @@ let bookCount = 1;
 function openSample(){
   document.getElementById("sampleOverlay").classList.add("open");
   document.body.style.overflow = "hidden";
+  loadKakaoSDK().catch(e => console.warn("카카오 SDK 로드 실패", e));
 }
 function closeSample(){
   document.getElementById("sampleOverlay").classList.remove("open");
@@ -2150,18 +2162,20 @@ function searchPlace(q){
   const list = document.getElementById("placeList");
   if(!q || q.length < 2){ list.style.display="none"; return; }
   placeSearchTimer = setTimeout(() => {
-    const ps = new kakao.maps.services.Places();
-    ps.keywordSearch(q + " 학원", (data, status) => {
-      if(status !== kakao.maps.services.Status.OK || !data.length){
-        list.style.display="none"; return;
-      }
-      list.innerHTML = data.slice(0,5).map(p => `
-        <div class="place-item" onclick="selectPlace('${p.place_name.replace(/'/g,"\\'")}','${p.address_name.replace(/'/g,"\\'")}')">
-          <div class="place-name">${p.place_name}</div>
-          <div class="place-addr">${p.address_name}</div>
-        </div>`).join("");
-      list.style.display = "block";
-    });
+    loadKakaoSDK().then(() => {
+      const ps = new kakao.maps.services.Places();
+      ps.keywordSearch(q + " 학원", (data, status) => {
+        if(status !== kakao.maps.services.Status.OK || !data.length){
+          list.style.display="none"; return;
+        }
+        list.innerHTML = data.slice(0,5).map(p => `
+          <div class="place-item" onclick="selectPlace('${p.place_name.replace(/'/g,"\\'")}','${p.address_name.replace(/'/g,"\\'")}')">
+            <div class="place-name">${p.place_name}</div>
+            <div class="place-addr">${p.address_name}</div>
+          </div>`).join("");
+        list.style.display = "block";
+      });
+    }).catch(() => { list.style.display="none"; });
   }, 300);
 }
 function selectPlace(name, addr){
@@ -2191,7 +2205,7 @@ function searchBook(input, idx){
   const wrap = input.closest(".book-row");
   const ac = wrap.querySelector(".book-autocomplete");
   if(!q){ ac.style.display="none"; return; }
-  const results = getBookList().filter(b => b.toLowerCase().includes(q)).slice(0,12);
+  const results = getBookList().filter(b => b.toLowerCase().includes(q));
   if(!results.length){ ac.style.display="none"; return; }
   ac.innerHTML = results.map(b =>
     `<div class="book-autocomplete-item" onclick="selectBook(this,'${b.replace(/'/g,"\\'")}')">${b}</div>`
