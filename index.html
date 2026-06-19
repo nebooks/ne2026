@@ -85,25 +85,27 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
 .series-card{
   display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;
   padding:14px;cursor:pointer;text-align:left;font-family:inherit;width:100%;
+  align-items:stretch;min-height:146px;
 }
 .series-card:active{background:#F4F2EC}
 .cover{
   flex-shrink:0;width:86px;height:118px;border-radius:6px;overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-between;padding:8px;color:#fff;
-  box-shadow:inset -6px 0 8px rgba(0,0,0,.18);
+  box-shadow:inset -6px 0 8px rgba(0,0,0,.18);align-self:flex-start;
 }
-.cover.img{padding:0}
-.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.cover.img{padding:0;background:#f0ede6}
+.cover img{width:86px;height:118px;object-fit:cover;object-position:center top;display:block;flex-shrink:0}
 .cover .cover-title{font-weight:800;font-size:.78rem;line-height:1.25;word-break:keep-all}
-.series-card .info{min-width:0;flex:1}
+.series-card .info{min-width:0;flex:1;display:flex;flex-direction:column;min-height:118px}
 .series-card h2{font-size:1.05rem;font-weight:800;word-break:keep-all}
 .series-card .subtitle{font-size:.88rem;color:var(--ink-soft);margin-top:2px;word-break:keep-all}
+.series-card .info-body{flex:1}
 .tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .tag{font-size:.76rem;font-weight:700;padding:4px 9px;border-radius:5px;background:var(--paper);border:1px solid var(--line)}
 .tag.grade{background:var(--ink);border-color:var(--ink);color:#fff}
 .tag.cat{font-weight:700;border:none}
 .empty{grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--ink-soft)}
-.card-cta{font-size:.82rem;font-weight:700;color:var(--redpen);margin-top:10px;text-align:right;letter-spacing:-.01em}
+.card-cta{font-size:.82rem;font-weight:700;color:var(--redpen);margin-top:auto;padding-top:8px;text-align:right;letter-spacing:-.01em}
 
 /* ============ 상세 보기 ============ */
 .detail-overlay{position:fixed;inset:0;background:rgba(28,36,51,.55);display:none;z-index:50}
@@ -2130,13 +2132,15 @@ function render(){
     return `<button class="series-card" onclick="openDetail(${i})">
        ${coverHTML(s)}
        <div class="info">
-         <h2>${s.title}</h2>
-         <div class="subtitle">${s.subtitle}</div>
-         <div class="tag-row">
-           ${areaBadge}
-           ${s.grades.map(g=>`<span class="tag grade">${g}</span>`).join("")}
-           <span class="tag cat">${s.category}</span>
-           <span class="tag">${s.products.length}종</span>
+         <div class="info-body">
+           <h2>${s.title}</h2>
+           <div class="subtitle">${s.subtitle}</div>
+           <div class="tag-row">
+             ${areaBadge}
+             ${s.grades.map(g=>`<span class="tag grade">${g}</span>`).join("")}
+             <span class="tag cat">${s.category}</span>
+             <span class="tag">${s.products.length}종</span>
+           </div>
          </div>
          <div class="card-cta">제품/주문 보기 →</div>
        </div>
