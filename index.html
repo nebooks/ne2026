@@ -23,18 +23,38 @@ body{
 :focus-visible{outline:3px solid var(--redpen);outline-offset:2px}
 
 header{
-  padding:20px 20px 14px; padding-top:calc(20px + env(safe-area-inset-top));
-  border-bottom:1px solid var(--line);
+  padding:18px 20px 0; padding-top:calc(18px + env(safe-area-inset-top));
 }
-header .company{font-size:.8rem;letter-spacing:.18em;color:var(--redpen);font-weight:700}
-header h1{font-size:1.5rem;font-weight:800;margin-top:2px}
+header .company{font-size:.78rem;letter-spacing:.18em;color:var(--redpen);font-weight:700}
+header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
 .hl{background:linear-gradient(transparent 62%, var(--marker) 62%);padding:0 2px}
-.header-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.header-inner .sample-btn{flex-shrink:0}
-@media (max-width:479px){
-  .header-inner{flex-direction:column;align-items:flex-start;gap:10px}
-  .header-inner .sample-btn{align-self:flex-end;margin-top:-8px}
+.header-inner{display:block}
+
+/* 전역 검색창 — 헤더 내부 */
+.global-search-wrap{position:relative;margin-top:14px}
+.global-search-wrap input{
+  width:100%;box-sizing:border-box;
+  padding:11px 16px 11px 40px;
+  border:1.5px solid var(--line);border-radius:12px;
+  font-size:1rem;font-family:inherit;
+  background:var(--card);color:var(--ink);outline:none;
 }
+.global-search-wrap input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(0,0,0,.06)}
+.global-search-wrap::before{content:"🔍";position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:.9rem;pointer-events:none}
+
+/* 샘플 신청 버튼 — 검색창 아래 full-width */
+.sample-cta{
+  display:block;width:100%;box-sizing:border-box;
+  margin-top:10px;padding:13px 0;
+  background:var(--redpen);color:#fff;
+  border:none;border-radius:12px;
+  font-size:1rem;font-weight:700;font-family:inherit;
+  cursor:pointer;text-align:center;
+}
+.sample-cta:active{opacity:.85}
+
+/* 헤더 하단 border — 탭 위 */
+.header-bottom-line{height:1px;background:var(--line);margin-top:14px}
 
 .filters{padding:14px 20px 4px}
 .search-wrap{position:relative;margin-bottom:14px}
@@ -260,12 +280,14 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px}
 
 <header>
   <div class="header-inner">
-    <div>
-      <div class="company">건강한 배움의 즐거움, NE능률</div>
-      <h1 class="serif"><span class="hl">2026 <span style="color:#E83828">NE</span>능률 영어 가이드북</span></h1>
+    <div class="company">건강한 배움의 즐거움, NE능률</div>
+    <h1 class="serif"><span class="hl">2026 <span style="color:#E83828">NE</span>능률 영어 가이드북</span></h1>
+    <div class="global-search-wrap">
+      <input type="text" id="bookSearch" placeholder="교재명 통합 검색 (예: 리딩튜터, Grammar Zone…)" oninput="setSearch(this.value)">
     </div>
-    <button class="sample-btn" onclick="openSample()">📦 샘플 신청</button>
+    <button class="sample-cta" onclick="openSample()">📦 샘플 교재 신청</button>
   </div>
+  <div class="header-bottom-line"></div>
 </header>
 
 <div class="tab-row">
@@ -274,9 +296,6 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px}
 </div>
 
 <div class="filters">
-  <div class="search-wrap">
-    <input type="text" id="bookSearch" placeholder="교재명 검색 (예: 리딩튜터, Grammar Zone, 수능만만)" oninput="setSearch(this.value)">
-  </div>
   <div class="filter-label">학년</div>
   <div class="chip-row" id="gradeChips"></div>
   <div class="filter-label">카테고리</div>
@@ -1998,6 +2017,7 @@ function setTab(tab){
   searchQuery = "";
   const si = document.getElementById("bookSearch");
   if(si) si.value = "";
+  buildChips();
   document.getElementById("tab-kr").classList.toggle("active", tab==="kr");
   document.getElementById("tab-elt").classList.toggle("active", tab==="elt");
   render();
@@ -2021,6 +2041,12 @@ function getCatColor(cat){ return CAT_BG[cat]||"#E3E0D8"; }
 function getCatTextColor(cat){ return CAT_FG[cat]||"#1C2433"; }
 
 function buildChips(){
+  const filtersEl = document.querySelector(".filters");
+  if(searchQuery){
+    if(filtersEl) filtersEl.style.display = "none";
+    return;
+  }
+  if(filtersEl) filtersEl.style.display = "";
   const gradeOrder = selectedTab==="kr" ? GRADE_ORDER_KR : GRADE_ORDER_ELT;
   const seriesInTab = SERIES.filter(s => selectedTab==="elt" ? isELT(s) : !isELT(s));
   const grades = ["전체", ...gradeOrder.filter(g => seriesInTab.some(s => s.grades.includes(g)))];
@@ -2047,13 +2073,12 @@ function coverHTML(s){
 function priceText(p){ return p>0 ? p.toLocaleString()+"원" : "미정"; }
 
 function render(){
-  buildChips();
-  filtered = SERIES.filter(s => {
-    if(!(selectedTab==="elt" ? isELT(s) : !isELT(s))) return false;
-    if(!(selectedGrade==="전체" || s.grades.includes(selectedGrade))) return false;
-    if(!(selectedCategory==="전체" || s.category===selectedCategory)) return false;
-    if(searchQuery){
-      const q = searchQuery;
+  const isGlobalSearch = searchQuery.length > 0;
+
+  if(isGlobalSearch){
+    // 전역 검색: 탭/학년/카테고리 무시, 전체 SERIES에서 검색
+    const q = searchQuery;
+    filtered = SERIES.filter(s => {
       const inTitle    = (s.title||"").toLowerCase().includes(q);
       const inSubtitle = (s.subtitle||"").toLowerCase().includes(q);
       const inTarget   = (s.target||"").toLowerCase().includes(q);
@@ -2061,31 +2086,50 @@ function render(){
         (p.name||"").toLowerCase().includes(q) ||
         (p.target||"").toLowerCase().includes(q)
       );
-      if(!inTitle && !inSubtitle && !inTarget && !inProducts) return false;
-    }
-    return true;
-  });
+      return inTitle || inSubtitle || inTarget || inProducts;
+    });
+  } else {
+    // 일반 탐색: 탭 + 학년 + 카테고리 필터
+    buildChips();
+    filtered = SERIES.filter(s => {
+      if(!(selectedTab==="elt" ? isELT(s) : !isELT(s))) return false;
+      if(!(selectedGrade==="전체" || s.grades.includes(selectedGrade))) return false;
+      if(!(selectedCategory==="전체" || s.category===selectedCategory)) return false;
+      return true;
+    });
+  }
+
   const total = filtered.reduce((n,s)=>n+s.products.length,0);
-  document.getElementById("countText").innerHTML =
-    `<strong>${filtered.length}개 시리즈</strong> · 총 ${total}종`;
+  const searchLabel = isGlobalSearch
+    ? `"${searchQuery}" 검색 결과 <strong>${filtered.length}개 시리즈</strong> · 총 ${total}종`
+    : `<strong>${filtered.length}개 시리즈</strong> · 총 ${total}종`;
+  document.getElementById("countText").innerHTML = searchLabel;
+
   const list = document.getElementById("seriesList");
   if(filtered.length===0){
     list.innerHTML = `<div class="empty">조건에 맞는 교재가 없습니다.<br>필터를 바꿔 보세요.</div>`;
     return;
   }
-  list.innerHTML = filtered.map((s,i)=>
-    `<button class="series-card" onclick="openDetail(${i})">
+
+  list.innerHTML = filtered.map((s,i) => {
+    // 전역 검색 시 초중고/ELT 구분 배지 표시
+    const areaBadge = isGlobalSearch
+      ? `<span class="tag" style="background:${isELT(s)?"#6B4C9A":"#E83828"};color:#fff">${isELT(s)?"ELT":"초중고"}</span>`
+      : "";
+    return `<button class="series-card" onclick="openDetail(${i})">
        ${coverHTML(s)}
        <div class="info">
          <h2>${s.title}</h2>
          <div class="subtitle">${s.subtitle}</div>
          <div class="tag-row">
+           ${areaBadge}
            ${s.grades.map(g=>`<span class="tag grade">${g}</span>`).join("")}
            <span class="tag cat">${s.category}</span>
            <span class="tag">${s.products.length}종</span>
          </div>
        </div>
-     </button>`).join("");
+     </button>`;
+  }).join("");
 }
 
 function openDetail(i){
