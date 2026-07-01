@@ -2526,8 +2526,9 @@ function getBookList(){
       }
 
       // 중복 단어를 제거한 최종 이름 생성
-      const uniqueProductPart = overlap > 0 ? productWords.slice(overlap).join(" ") : p.name;
-      const fullName = uniqueProductPart ? seriesBase + " " + uniqueProductPart : seriesBase + " " + p.name;
+      const uniqueProductPart = productWords.slice(overlap).join(" ");
+      // uniqueProductPart가 비어있으면 시리즈명=제품명인 경우 → 시리즈명만 사용 (예: 문마고)
+      const fullName = uniqueProductPart ? seriesBase + " " + uniqueProductPart : seriesBase;
       list.push(fullName);
     });
   });
