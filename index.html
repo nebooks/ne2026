@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>2026 NE능률 영어 가이드북</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800&display=swap" rel="stylesheet">
@@ -238,7 +238,8 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
 .form-label span{color:var(--redpen)}
 .form-input{
   width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;
-  font-size:.95rem;font-family:inherit;background:var(--card);color:var(--ink);
+  font-size:1rem;font-family:inherit;background:var(--card);color:var(--ink);
+  box-sizing:border-box;
 }
 .form-input:focus{border-color:var(--redpen);outline:none}
 .form-radio-row{display:flex;gap:10px;flex-wrap:wrap}
@@ -248,7 +249,7 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
   font-family:inherit;color:var(--ink);
 }
 .form-radio.selected{background:var(--ink);color:#fff;border-color:var(--ink)}
-.book-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;position:relative}
+.book-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;position:relative}
 .book-input-wrap{flex:1;position:relative}
 .book-autocomplete{
   position:absolute;top:100%;left:0;right:0;background:var(--card);
@@ -261,8 +262,9 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
 .book-autocomplete-item:last-child{border-bottom:none}
 .book-autocomplete-item:active{background:var(--paper)}
 .qty-select{
-  width:80px;padding:12px 8px;border:1.5px solid var(--line);border-radius:10px;
-  font-size:.95rem;font-family:inherit;background:var(--card);color:var(--ink);
+  width:80px;padding:11px 8px;border:1.5px solid var(--line);border-radius:10px;
+  font-size:1rem;font-family:inherit;background:var(--card);color:var(--ink);
+  height:46px;box-sizing:border-box;
 }
 .add-book-btn{
   width:100%;padding:12px;border:1.5px dashed var(--line);border-radius:10px;
@@ -270,9 +272,12 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
   cursor:pointer;font-family:inherit;margin-bottom:16px;
 }
 .remove-book-btn{
-  padding:12px 10px;border:none;background:none;color:var(--ink-soft);
-  font-size:1.2rem;cursor:pointer;flex-shrink:0;margin-top:0;
+  width:36px;height:36px;border:1px solid var(--line);border-radius:8px;
+  background:var(--card);color:var(--ink-soft);
+  font-size:1rem;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
 }
+.remove-book-btn:active{background:var(--paper)}
 .kakao-result{
   background:var(--paper);border-radius:10px;padding:10px 14px;
   font-size:.85rem;color:var(--ink-soft);margin-top:6px;display:none;
@@ -288,6 +293,11 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
 .privacy-wrap{margin-bottom:14px;padding:14px;background:var(--paper-soft,#f5f5f5);border-radius:10px;border:1px solid var(--line);font-size:.82rem;color:var(--ink-soft);line-height:1.6}
 .privacy-wrap label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--ink);margin-bottom:8px}
 .privacy-wrap input[type=checkbox]{margin-top:2px;flex-shrink:0;width:16px;height:16px;cursor:pointer}
+.privacy-list{list-style:none;padding:0;margin:4px 0 8px;display:flex;flex-direction:column;gap:6px}
+.privacy-list li{display:flex;align-items:flex-start;gap:6px;font-size:.82rem;color:var(--ink-soft);line-height:1.55}
+.privacy-list li::before{content:"·";flex-shrink:0;font-weight:700;color:var(--ink-soft);margin-top:1px}
+.privacy-label{font-weight:700;color:var(--ink);flex-shrink:0;margin-right:4px}
+.privacy-notice{font-size:.78rem;color:var(--ink-soft);margin-top:6px;padding-top:8px;border-top:1px solid var(--line);line-height:1.5;word-break:keep-all}
 .sample-close{
   position:absolute;top:20px;right:20px;
   background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-soft);
@@ -417,6 +427,7 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
               <option value="2">2부</option>
               <option value="3">3부</option>
             </select>
+            <div style="width:36px;flex-shrink:0"></div>
           </div>
         </div>
         <button type="button" class="add-book-btn" id="addBookBtn" onclick="addBookRow()">+ 교재 추가 (최대 3종)</button>
@@ -433,13 +444,15 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
           <input type="checkbox" id="privacyAgree">
           개인정보 수집 및 이용에 동의합니다. (필수)
         </label>
-        수집 항목: 학원명, 신청자명, 직책, 연락처, 주소, 신청 교재<br>
-        이용 목적: 샘플 교재 발송 및 담당자 확인<br>
-        <!-- 개인정보 보유기간: 회사 개인정보 담당 부서 확인 후 실제 기간으로 교체 필요 -->
-        보유 및 이용기간: 샘플 발송 목적 달성 후 회사 개인정보 처리 기준에 따라 파기됩니다. 구체적인 보유기간은 회사 정책 확인 후 업데이트됩니다.<br>
-        개인정보 수집 및 이용 동의를 거부할 수 있으나, 필수정보 수집에 동의하지 않을 경우 샘플 신청이 제한됩니다.
+        <ul class="privacy-list">
+          <li><span class="privacy-label">수집 항목</span>학원명, 신청자명, 직책, 연락처, 주소, 신청 교재</li>
+          <li><span class="privacy-label">이용 목적</span>샘플 교재 발송 및 담당자 확인</li>
+          <!-- 개인정보 보유기간: 회사 개인정보 담당 부서 확인 후 실제 기간으로 교체 필요 -->
+          <li><span class="privacy-label">보유 및 이용기간</span>샘플 발송 목적 달성 후 회사 개인정보 처리 기준에 따라 파기됩니다.<br>구체적인 보유기간은 회사 정책 확인 후 업데이트됩니다.</li>
+        </ul>
+        <p class="privacy-notice">개인정보 수집 및 이용 동의를 거부할 수 있으나, 필수정보 수집에 동의하지 않을 경우 샘플 신청이 제한됩니다.</p>
       </div>
-      <p id="submitFailMsg" class="submit-fail-msg" aria-live="polite" style="display:none">샘플 신청을 완료하지 못했습니다. 입력 내용을 확인한 뒤 다시 시도해 주세요.</p>
+      <p id="submitFailMsg" class="submit-fail-msg" aria-live="polite" style="display:none">샘플 신청을 완료하지 못했습니다.<br>입력 내용을 확인한 뒤 다시 시도해 주세요.</p>
       <button type="button" class="submit-btn" onclick="submitSample()">샘플 신청하기</button>
     </div>
     <div class="success-msg" id="successMsg" style="display:none">
