@@ -2199,6 +2199,7 @@ let selectedCategory = "전체";
 let searchQuery = "";
 let filtered = [];
 let currentIndex = 0;
+let detailFilteredBackup = null; // 비교 화면 상세 보기 시 filtered 임시 백업
 const GRADE_ORDER_KR  = ["초등","중등","고등"];
 const GRADE_ORDER_ELT = ["유치","초등","중등"];
 const ELT_CATS = ["Phonics","Coursebook","Reading","Listening","Writing","Speaking","Grammar","Vocabulary","Assessment"];
@@ -2496,6 +2497,11 @@ function openDetail(i){
 function closeDetail(){
   document.getElementById("detailOverlay").classList.remove("open");
   document.body.style.overflow="";
+  // 비교 화면에서 임시로 filtered를 변경했던 경우 원복
+  if(detailFilteredBackup !== null){
+    filtered = detailFilteredBackup;
+    detailFilteredBackup = null;
+  }
   if(lastFocusedEl && typeof lastFocusedEl.focus === "function") lastFocusedEl.focus();
 }
 function moveDetail(step){
@@ -2739,7 +2745,8 @@ function openDetailBySeriesIdx(seriesIdx){
   if(pos > -1){
     openDetail(pos);
   } else {
-    // 현재 filtered에 없는 경우 해당 시리즈만 임시 설정 후 상세 열기
+    // 현재 filtered에 없는 경우: 기존 filtered를 백업 후 임시 설정
+    detailFilteredBackup = filtered.slice();
     filtered = [s];
     openDetail(0);
   }
