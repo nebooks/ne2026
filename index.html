@@ -390,7 +390,8 @@ body.compare-active footer{padding-bottom:120px}
   background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;
   display:flex;flex-direction:column;
 }
-.compare-col-title{font-size:1rem;font-weight:800;margin-bottom:12px;word-break:keep-all}
+.compare-col-title{font-size:1rem;font-weight:800;margin-bottom:4px;word-break:keep-all}
+.compare-summary{font-size:.8rem;color:var(--ink-soft);font-weight:600;margin-bottom:12px}
 .compare-row{margin-bottom:10px}
 .compare-row-label{font-size:.72rem;font-weight:700;color:var(--ink-soft);letter-spacing:.04em;margin-bottom:3px;text-transform:uppercase}
 .compare-row-val{font-size:.88rem;word-break:keep-all;line-height:1.5}
@@ -2701,23 +2702,21 @@ function renderCompareGrid(){
     const orderUrl = isELT(s)
       ? (isValidOrderUrl(s.products[0]?.orderUrl) ? s.products[0].orderUrl.replace(/\+\d+$|%2C\+\d+$/, "") : "")
       : (isValidOrderUrl(s.products[0]?.orderUrl) ? s.products[0].orderUrl : "");
+    // 상단 요약: 학년 · 카테고리 · n종
+    const summary = `${s.grades.join("/")} · ${s.category} · ${s.products.length}종`;
+    // 제품명 최대 3개, 초과 시 "외 n종"
+    const shownProducts = s.products.slice(0,3).map(p=>p.name).join(" · ");
+    const extraProducts = s.products.length > 3 ? ` 외 ${s.products.length-3}종` : "";
     return `<div class="compare-col">
       <div class="compare-col-title">${s.title}</div>
-      <div class="compare-row">
-        <div class="compare-row-label">학년</div>
-        <div class="compare-row-val">${s.grades.join(" · ")}</div>
-      </div>
-      <div class="compare-row">
-        <div class="compare-row-label">카테고리</div>
-        <div class="compare-row-val">${s.category}</div>
-      </div>
+      <div class="compare-summary">${summary}</div>
       <div class="compare-row">
         <div class="compare-row-label">대상</div>
         <div class="compare-row-val">${s.target||"-"}</div>
       </div>
       <div class="compare-row">
-        <div class="compare-row-label">제품 구성 (${s.products.length}종)</div>
-        <div class="compare-row-val products-list">${s.products.map(p=>p.name).join("<br>")}</div>
+        <div class="compare-row-label">제품 구성</div>
+        <div class="compare-row-val products-list">${shownProducts}${extraProducts}</div>
       </div>
       <div class="compare-row">
         <div class="compare-row-label">가격 범위</div>
@@ -2728,9 +2727,22 @@ function renderCompareGrid(){
         <div class="compare-row-val">${s.followUp.replace("다음 단계 추천: ","")}</div>
       </div>`:""}
       ${orderUrl?`<a class="compare-order-btn" href="${orderUrl}" target="_blank" rel="noopener noreferrer">주문 페이지 열기 ↗</a>`:`<div style="margin-top:auto"></div>`}
-      <button type="button" class="compare-detail-btn" onclick="closeCompare();openDetail(${filtered.indexOf(s)>=0?filtered.indexOf(s):0})">상세 보기</button>
+      <button type="button" class="compare-detail-btn" onclick="closeCompare();openDetailBySeriesIdx(${idx})">상세 보기</button>
     </div>`;
   }).join("");
+}
+// 비교 화면에서 상세 보기: 해당 시리즈가 filtered에 있으면 그 index, 없으면 임시로 filtered 교체
+function openDetailBySeriesIdx(seriesIdx){
+  const s = SERIES[seriesIdx];
+  if(!s) return;
+  const pos = filtered.indexOf(s);
+  if(pos > -1){
+    openDetail(pos);
+  } else {
+    // 현재 filtered에 없는 경우 해당 시리즈만 임시 설정 후 상세 열기
+    filtered = [s];
+    openDetail(0);
+  }
 }
 
 function selectRole(btn, role){
@@ -2938,7 +2950,7 @@ function submitSample(){
 <div class="compare-overlay" id="compareOverlay">
   <div class="compare-sheet">
     <div class="compare-sheet-head">
-      <h2>교재 비교</h2>
+      <h2>담은 교재 비교</h2>
       <button type="button" class="compare-close" onclick="closeCompare()" aria-label="비교 닫기">✕</button>
     </div>
     <div class="compare-grid" id="compareGrid"></div>
