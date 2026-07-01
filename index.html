@@ -2512,6 +2512,8 @@ function moveDetail(step){
 }
 function renderDetail(){
   const s=filtered[currentIndex];
+  // 실제 SERIES 인덱스 기준으로 비교 버튼 상태 관리 (filtered 임시 변경 시에도 정확하게 동작)
+  const detailSeriesIdx = SERIES.indexOf(s);
   document.getElementById("detailSheet").innerHTML=`
     <div class="detail-top">
       <div>
@@ -2553,10 +2555,10 @@ function renderDetail(){
         </a>`:""}
     </div>
     <button type="button"
-      class="btn-compare ${compareList.includes(currentIndex)?'in-compare':''}"
+      class="btn-compare ${compareList.includes(detailSeriesIdx)?'in-compare':''}"
       style="margin-top:12px;width:100%;justify-content:center"
-      onclick="toggleCompare(currentIndex);renderDetail()">
-      ${compareList.includes(currentIndex)?"✓ 비교함에 담김":"＋ 비교함에 담기"}
+      onclick="${detailSeriesIdx>=0?`toggleCompare(${detailSeriesIdx});renderDetail()`:''}">
+      ${compareList.includes(detailSeriesIdx)?"✓ 비교함에 담김":"＋ 비교함에 담기"}
     </button>
     <div class="sample-sub-sec">
       <p>수업 검토용 샘플 교재가 필요한 경우 신청해 주세요.</p>
