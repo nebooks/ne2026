@@ -2464,6 +2464,13 @@ function formatPhone(input){
 function searchPlace(q){
   clearTimeout(placeSearchTimer);
   const list = document.getElementById("placeList");
+
+  // 학원명 수정 시 이전 주소 자동 초기화
+  document.getElementById("f-addr").value = "";
+  document.getElementById("f-addr-detail").value = "";
+  const kr = document.getElementById("kakaoResult");
+  if(kr){ kr.textContent = ""; kr.style.display = "none"; }
+
   if(!q || q.length < 2){ list.style.display="none"; return; }
   placeSearchTimer = setTimeout(() => {
     loadKakaoSDK().then(() => {
