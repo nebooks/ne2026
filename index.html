@@ -196,8 +196,15 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
 /* 제품 구성: 단계별 줄 + 주문 버튼 */
 .product-sec{margin-top:18px}
 .product-row{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;gap:10px;flex-wrap:nowrap;
   border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;
+}
+@media(max-width:480px){
+  .product-row{flex-wrap:wrap;align-items:flex-start}
+  .product-row .p-thumb{align-self:flex-start}
+  .product-row .p-info{flex:1;min-width:0}
+  .product-row .p-price{width:100%;padding-left:76px;margin-top:4px;font-size:.85rem}
+  .product-row .order-btn{width:100%;margin-top:8px;min-height:44px}
 }
 .product-row .p-info{flex:1;min-width:0}
 .product-row .p-thumb{width:66px;height:92px;object-fit:cover;object-position:center top;border-radius:6px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.15);overflow:hidden;display:block}
@@ -265,6 +272,7 @@ header h1{font-size:1.5rem;font-weight:800;margin-top:2px;margin-bottom:0}
   background:var(--card);border-radius:20px 20px 0 0;
   padding:24px 20px 40px;padding-bottom:calc(40px + env(safe-area-inset-bottom));
   transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0);
+  position:relative;
 }
 .sample-overlay.open .sample-sheet{transform:translateY(0)}
 .sample-title{font-size:1.15rem;font-weight:800;margin-bottom:4px}
